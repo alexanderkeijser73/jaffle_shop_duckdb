@@ -9,3 +9,5 @@ venv/
 env/
 **/*.duckdb
 **/*.duckdb.wal
+
+slides/en/dbt_intro_files/

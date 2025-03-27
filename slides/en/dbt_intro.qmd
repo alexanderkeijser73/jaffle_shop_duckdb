@@ -1,0 +1,311 @@
+---
+title: "dbt Introduction & hands-on demo"
+format: 
+  revealjs: default
+  pptx: default
+---
+
+## What is dbt?
+
+- **dbt (Data Build Tool)** is an open-source tool that enables analytics engineers to transform data in their warehouse using:
+  - **Modularity**: Write reusable SQL code
+  - **Version Control**: Track changes with Git
+  - **Testing**: Built-in data quality checks
+  - **Documentation**: Auto-generate docs for your transformations
+
+# Traditional vs dbt Workflow
+
+## Before dbt:
+- Manual view creation in each environment:
+
+    ```sql
+    -- Manually run in TEST
+    CREATE OR REPLACE VIEW TEST_DB.ANALYTICS.DAILY_SALES AS ...
+    
+    -- Later manually run in ACCEPTANCE
+    CREATE OR REPLACE VIEW ACCEPT_DB.ANALYTICS.DAILY_SALES AS ...
+    
+    -- Finally manually run in PRODUCTION
+    CREATE OR REPLACE VIEW PROD_DB.ANALYTICS.DAILY_SALES AS ...
+    ```
+- 😟 Problems:
+  - No version control
+  - Manual deployments prone to errors
+  - No documentation of business logic
+  - Environments can get out of sync
+
+## With dbt:
+- Version controlled models:
+
+    ```sql
+    -- models/marts/daily_sales.sql
+    {{ config(materialized='view') }}
+    
+    SELECT DATE_TRUNC('day', order_date) as date,
+           SUM(amount) as revenue
+    FROM {{ ref('stg_orders') }}
+    GROUP BY 1
+    ```
+- 😊 Benefits:
+  - Single source of truth
+  - Automated deployments: `dbt run --target prod`
+  - Built-in testing: `dbt test`
+  - Documentation included
+  - Easy rollback with Git
+  - Consistent across environments
+
+
+## Connecting dbt to your data warehouse
+
+ **Configure Connection**: Update the `profiles.yml` file with Snowflake connection details.
+
+  ```yaml
+  my_project:
+    target: dev
+    outputs:
+        dev:
+          type: snowflake
+          account: your_account
+          user: your_username
+          password: your_password
+          role: your_role
+          database: your_database
+          warehouse: your_warehouse
+          schema: your_schema
+  ```
+
+## dbt Project Structure
+
+```bash
+my_project/
+├── models/
+│   ├── staging/          # Initial transformations
+│   │   ├── stg_orders.sql
+│   │   └── schema.yml    # Column definitions & tests
+│   └── marts/            # Business-level models
+├── tests/                # Custom data tests
+├── macros/              # Reusable SQL functions
+├── seeds/               # Static CSV files
+└── dbt_project.yml      # Project configuration
+```
+
+- **SQL Files**: Transform data
+- **YAML Files**: Define metadata & tests
+- **Macros**: Reusable SQL functions
+- **Seeds**: Static reference data
+
+# Working with Sources
+
+## **Sources**: Define your raw data tables in YAML
+```yaml
+## models/staging/sources.yml
+version: 2
+sources:
+  - name: raw_data
+    database: RAW_DB
+    schema: PUBLIC
+    tables:
+      - name: orders
+        description: "Raw orders from our ERP system"
+        columns:
+          - name: order_id
+            tests:
+              - unique
+              - not_null
+        freshness:
+          warn_after: {count: 12, period: hour}
+          error_after: {count: 24, period: hour}
+```
+
+## **Reference Sources in Models**: 
+Use the `source()` function
+
+  ```sql
+  -- models/staging/stg_orders.sql
+  select
+      order_id,
+      customer_name,
+      order_date
+  from {{ source('raw_data', 'orders') }}
+  ```
+
+**Benefits**
+
+* Document source data locations
+* Test data freshness: `dbt source freshness`
+* Easy to change source locations
+* Track data lineage from source
+
+## Writing dbt Models
+
+- **Models**: SQL files that define transformations.
+- Transformations defined using `select` statements
+- Place SQL files in the `models` directory.
+- Example model (`models/my_model.sql`):
+
+```sql
+select *
+from {{ ref('raw_data') }}
+where status = 'active'
+```
+
+## Creating models in datawarehouse
+
+- **Run Models**: Execute transformations defined in your models.
+
+    ```bash
+    dbt run
+    ```
+
+- Under the hood, dbt generates and executes SQL like this:
+
+    ```sql
+    CREATE OR REPLACE TABLE "DATABASE"."SCHEMA"."MY_MODEL" AS (
+        select *
+        from "DATABASE"."SCHEMA"."RAW_DATA"
+        where status = 'active'
+    );
+    ```
+
+## Running data quality tests
+**Test Models**: Run tests to ensure data quality.
+
+  ```bash
+  dbt test
+  ```
+
+
+
+### What happens?
+
+::: {layout-ncol=2}
+
+### This `not_null` test
+
+  ```yaml
+  # schema.yml
+  models:
+    - name: my_model
+      columns:
+        - name: id
+          tests:
+            - not_null
+  ```
+
+### Generates and runs SQL like this:
+
+  ```sql
+  select *
+  from "DATABASE"."SCHEMA"."MY_MODEL"
+  where id is null
+  having count(*) > 0
+  ```
+:::
+
+
+    
+
+
+## Documentation
+
+- **Model Lineage**: Using `ref()` allows dbt to automatically generate a DAG (Directed Acyclic Graph) of your data transformations:
+
+    ```sql
+    -- models/staging/stg_orders.sql
+    select * from {{ ref('raw_orders') }}
+
+    -- models/marts/daily_orders.sql
+    select 
+        date_trunc('day', order_date) as order_day,
+        sum(amount) as daily_amount
+    from {{ ref('stg_orders') }}
+    group by 1
+    ```
+```{mermaid}
+flowchart LR
+    A[raw_orders] --> B[stg_orders]
+    B --> C[daily_orders]
+    classDef source fill:#e6e6e6
+    classDef staging fill:#b3d9ff
+    classDef mart fill:#99ff99
+    class A source
+    class B staging
+    class C mart
+```
+
+
+
+## Generating documentation site
+
+- **Generate Docs**: Create documentation for your models.
+
+    ```bash
+    dbt docs generate
+    ```
+
+- **Serve Docs**: View the documentation in a web browser.
+
+    ```bash
+    dbt docs serve
+    ```
+
+## Materializations
+**TODO**
+
+## Conclusion
+
+- dbt simplifies data transformation workflows.
+- Seamless integration with Snowflake.
+- Enhances collaboration, testing, and documentation.
+
+Thank you!
+
+## Useful links
+**TODO**
+
+# Hands-on demo
+
+## Setup
+
+- Open the repo: [https://rb.gy/3fkiav](https://rb.gy/3fkiav)
+- Install using the Windows/Mac instructions
+- Try opening the duckDB UI (recommended), or set up DBeaver
+
+
+## Exercise 1: writing a dbt model
+
+- Aggregate `orders` by month and compute total amount and number of sales
+
+```bash
+duckdb jaffle_shop.duckdb 'select * from monthly_orders'
+```
+
+```
+┌────────────┬──────────────┬──────────────┐
+│   month    │ total_amount │ total_orders │
+│    date    │    double    │    int64     │
+├────────────┼──────────────┼──────────────┤
+│ 2018-01-01 │        496.0 │           29 │
+│ 2018-02-01 │        415.0 │           27 │
+│ 2018-03-01 │        622.0 │           35 │
+│ 2018-04-01 │        139.0 │            8 │
+└────────────┴──────────────┴──────────────┘
+```
+Voila!
+
+## Exercise 2: change the materialization
+
+- Materialize `monthly_orders` as a view instead of a table
+
+
+## Exercise 3: break a test
+
+- Remove 'credit_card' from the accepted values for `stg_payments`
+- Run `dbt` test and see what happens
+- Find where the test failure is stored in the datawarhouse
+
+
+## Exercise 4: add a table description to `stg_payments` 
+
+- Add a description for `stg_payments`
+- Generate and open the documentation site and see what it looks like!
