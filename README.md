@@ -60,7 +60,7 @@ Prerequisities: Python >= 3.5
 <summary>POSIX bash/zsh</summary>
 
 ```shell
-git clone https://github.com/dbt-labs/jaffle_shop_duckdb.git
+git clone https://github.com/alexanderkeijser73/jaffle_shop_duckdb.git
 cd jaffle_shop_duckdb
 python3 -m venv venv
 source venv/bin/activate
@@ -77,7 +77,7 @@ dbt docs serve
 <summary>POSIX fish</summary>
 
 ```shell
-git clone https://github.com/dbt-labs/jaffle_shop_duckdb.git
+git clone https://github.com/alexanderkeijser73/jaffle_shop_duckdb.git
 cd jaffle_shop_duckdb
 python3 -m venv venv
 source venv/bin/activate.fish
@@ -94,7 +94,7 @@ dbt docs serve
 <summary>POSIX csh/tcsh</summary>
 
 ```shell
-git clone https://github.com/dbt-labs/jaffle_shop_duckdb.git
+git clone https://github.com/alexanderkeijser73/jaffle_shop_duckdb.git
 cd jaffle_shop_duckdb
 python3 -m venv venv
 source venv/bin/activate.csh
@@ -111,7 +111,7 @@ dbt docs serve
 <summary>POSIX PowerShell Core</summary>
 
 ```shell
-git clone https://github.com/dbt-labs/jaffle_shop_duckdb.git
+git clone https://github.com/alexanderkeijser73/jaffle_shop_duckdb.git
 cd jaffle_shop_duckdb
 python3 -m venv venv
 venv/bin/Activate.ps1
@@ -128,7 +128,7 @@ dbt docs serve
 <summary>Windows cmd.exe</summary>
 
 ```shell
-git clone https://github.com/dbt-labs/jaffle_shop_duckdb.git
+git clone https://github.com/alexanderkeijser73/jaffle_shop_duckdb.git
 cd jaffle_shop_duckdb
 python -m venv venv
 venv\Scripts\activate.bat
@@ -145,7 +145,7 @@ dbt docs serve
 <summary>Windows PowerShell</summary>
 
 ```shell
-git clone https://github.com/dbt-labs/jaffle_shop_duckdb.git
+git clone https://github.com/alexanderkeijser73/jaffle_shop_duckdb.git
 cd jaffle_shop_duckdb
 python -m venv venv
 venv\Scripts\Activate.ps1
