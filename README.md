@@ -435,6 +435,28 @@ Some options:
 - [DuckDB CLI](https://duckdb.org/docs/installation/?environment=cli)
 - [How to set up DBeaver SQL IDE for DuckDB](https://duckdb.org/docs/guides/sql_editors/dbeaver)
 
+
+### Running DuckDB UI from DuckDB CLI
+
+Install duckb cli first:
+
+Mac:
+```
+brew install duckdb
+```
+
+Windows:
+1. Download https://github.com/duckdb/duckdb/releases/download/v1.2.1/duckdb_cli-windows-amd64.zip
+2. Extract the zip 
+
+Then open the UI as follows
+
+```shell
+make ui
+```
+
+
+
 ### Troubleshooting
 
 You may get an error like this, in which case you will need to disconnect from any sessions that are locking the database:
